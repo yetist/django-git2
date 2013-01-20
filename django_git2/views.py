@@ -1,7 +1,8 @@
-from django.template import RequestContext
-from django.shortcuts import render_to_response
-from django.core.urlresolvers import reverse
 from django.core import urlresolvers
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import render_to_response, redirect
+from django.template import RequestContext
 
 from django_git2 import settings
 from django_git2 import util
@@ -71,6 +72,8 @@ def list(request):
 
 def summary(request, repo):
     r = util.Git(repo)
+    if r.has_error():
+        return redirect(reverse('django-git-list'))
     ctx = r.get_summary()
     ctx['current'] = 'summary'
     return render_to_response("django_git2/summary.html", ctx, context_instance=RequestContext(request))
@@ -82,22 +85,34 @@ def refs(request, repo):
     return render_to_response("django_git2/refs.html", ctx, context_instance=RequestContext(request))
 
 def log(request, repo):
+    r = util.Git(repo)
+    if r.has_error():
+        return redirect(reverse('django-git-list'))
+    showmsg = request.GET.get('showmsg', '')
+    expand = False
+    if showmsg != '':
+        expand = True
+        
+    ctx = r.get_log()
+    ctx['current'] = 'log'
+    ctx['showmsg'] = expand
+    return render_to_response("django_git2/log.html", ctx, context_instance=RequestContext(request))
+
+def tree(request, repo):
+    module_path = reverse('django-git-tree', args=[repo])
+    rp = request.path
+    filepath = rp.split(module_path)[1]
+    r = util.Git(repo)
+    if r.has_error():
+        return redirect(reverse('django-git-list'))
+    ctx = r.get_tree(filepath)
+    ctx['current'] = 'tree'
+    return render_to_response("django_git2/tree.html", ctx, context_instance=RequestContext(request))
+
+def plain(request, repo):
     gitpath = os.path.join(settings.parent_path, repo + ".git")
     if os.path.isdir(gitpath):
         gitrepo = pygit2.Repository(gitpath)
-        meta = {
-                'current':'log',
-                'project':repo,
-                }
-        ctx = {
-            'project': repo,
-            'meta': meta,
-            'repo': gitrepo,
-            'refs': getrefs(gitrepo),
-            'owner': 'owner',
-            'homepage': 'http://',
-            }
-        return render_to_response("django_git2/log.html", ctx, context_instance=RequestContext(request))
 
 def about(request, repo):
     gitpath = os.path.join(settings.parent_path, repo + ".git")

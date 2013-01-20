@@ -1,0 +1,45 @@
+{% extends "django_git2/base.html" %}
+{% load future %}
+{% load timestamp %}
+
+{% block nav %}
+{% include "django_git2/header.html" %}
+{% if filepath %}
+<div class='path'>path: <a href='{% url 'django-git-tree' project.name %}'>root</a>/<a href='{% url 'django-git-tree' project.name %}{{filepath}}'>{{filepath}}</a> (<a href='{% url 'django-git-plain' project.name %}{{filepath}}'>plain</a>)</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if blob %}
+<table summary='blob content' class='blob'>
+	<tr>
+		<td class='linenumbers'>
+<pre>{% for i in lines %}<a class='no' id='n{{i}}' name='n{{i}}' href='#n{{i}}'>{{i}}</a>
+{% endfor %}</pre>
+		</td>
+		<td class='lines'>
+<pre><code>{{ blob.data }}</code></pre>
+		</td>
+	</tr>
+</table>
+{% endif %}
+
+{% if trees %}
+<table summary='tree listing' class='list'>
+	<tr class='nohover'>
+		<th class='left'>Mode</th>
+		<th class='left'>Name</th>
+		<th class='right'>Size</th>
+		<th/>
+		</tr>
+		{% for item in trees %}
+		<tr>
+			<td class='ls-mode'>{{ item.filemode }}</td>
+			<td><a class='ls-{{ item.type }}' href='{% url 'django-git-tree' project.name %}{{item.path}}'>{{ item.name }}</a></td>
+			<td class='ls-size'>{{ item.size }}</td>
+			<td><a class='button' href='{% url 'django-git-log' project.name %}{{item.path}}'>log</a><a class='button' href='{% url 'django-git-plain' project.name %}{{item.path}}'>plain</a></td>
+		</tr>
+		{% endfor %}
+	</table>
+	{% endif %}
+{% endblock %}

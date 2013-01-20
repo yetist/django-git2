@@ -1,9 +1,28 @@
 {% extends "django_git2/base.html" %}
 {% load future %}
+{% load timestamp %}
 
 {% block nav %}
 {% include "django_git2/header.html" %}
 {% endblock %}
 
 {% block content %}
+<table class='list nowrap'>
+	<tr class='nohover'>
+		<th class='left'>Age</th>
+		<th class='left'>Commit message (<a href='{% url 'django-git-log' project.name %}{% if not showmsg %}?showmsg=1{% endif %}'>{% if showmsg %}Collapse{% else %}Expand{% endif %}</a>)</th>
+		<th class='left'>Author</th>
+		<th class='left'>Files</th>
+		<th class='left'>Lines</th>
+	</tr>
+	{% for commit in commits %}
+	<tr>
+		<td>{{ commit.commit_time|timestamp:"%Y-%m-%d" }}</td>
+		<td><a href='{% url 'django-git-commit' project.name %}?id={{ commit.hex }}'>{{ commit.message|truncatechars:"95" }}</a></td>
+		<td>{{ commit.committer.name }}</td>
+		<td>1</td>
+		<td>-4/+1</td>
+	</tr>
+	{% endfor %}
+</table>
 {% endblock %}

@@ -23,7 +23,7 @@
 			<a{% ifequal current "summary" %} class='active'{% endifequal %} href='{% url 'django-git-summary' project.name %}'>summary</a>
 			<a{% ifequal current "refs" %} class='active'{% endifequal %} href='{% url 'django-git-refs' project.name %}'>refs</a>
 			<a{% ifequal current "log" %} class='active'{% endifequal %} href='{% url 'django-git-log' project.name %}'>log</a>
-			<a href='/git/cgit/tree/'>tree</a>
+			<a{% ifequal current "tree" %} class='active'{% endifequal %} href='{% url 'django-git-tree' project.name %}'>tree</a>
 			<a href='/git/cgit/commit/'>commit</a>
 			<a href='/git/cgit/diff/'>diff</a>
 			<a href='/git/cgit/stats/'>stats</a>

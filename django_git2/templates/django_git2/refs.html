@@ -8,7 +8,7 @@
 
 {% block content %}
 <table summary='repository info' class='list nowrap'><tr class='nohover'><th class='left'>Branch</th><th class='left'>Commit message</th><th class='left'>Author</th><th class='left' colspan='2'>Age</th></tr>
-    {% for k, v in refs.branch %}
+    {% for k, v in refs.branches %}
 	<tr>
 		<td><a href='{% url 'django-git-log' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ k }}</a></td>
 		<td><a href='{% url 'django-git-commit' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ v.message }}</a></td>

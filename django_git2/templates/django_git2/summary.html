@@ -8,13 +8,14 @@
 
 {% block content %}
 <table summary='repository info' class='list nowrap'>
+	{# show branches  #}
 	<tr class='nohover'>
 		<th class='left'>Branch</th>
 		<th class='left'>Commit message</th>
 		<th class='left'>Author</th>
 		<th class='left' colspan='2'>Age</th>
 	</tr>
-	{% for k, v in refs.branch %}
+	{% for k, v in refs.branches %}
 	<tr>
 		<td><a href='{% url 'django-git-log' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ k }}</a></td>
 		<td><a href='{% url 'django-git-commit' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ v.message }}</a></td>
@@ -22,6 +23,14 @@
 		<td colspan='2'>{% include "django_git2/time_duration.html" with date=v.commit_time %}</td>
 	</tr>
 	{%endfor%}
+	{% if tags_more %}
+	<tr class='nohover'>
+		<td colspan='4'><a href='{% url 'django-git-refs' project.name %}tags/'>[...]</a></td>
+	</tr>
+	{%endif%}
+
+	{# show tags  #}
+	{% if refs.tags %}
 	<tr class='nohover'>
 		<td colspan='4'>&nbsp;</td>
 	</tr>
@@ -39,10 +48,14 @@
 		<td colspan='2'>{% include "django_git2/time_duration.html" with date=v.tagger.time %}</td>
 	</tr>
 	{%endfor%}
-
+	{% if tags_more %}
 	<tr class='nohover'>
 		<td colspan='4'><a href='{% url 'django-git-refs' project.name %}tags/'>[...]</a></td>
 	</tr>
+	{%endif%}
+	{%endif%}
+
+	{# show commits #}
 	<tr class='nohover'>
 		<td colspan='4'>&nbsp;</td>
 	</tr>
@@ -56,7 +69,7 @@
 	{% for commit in commits %}
 	<tr>
 		<td>{{ commit.commit_time|timestamp:"%Y-%m-%d" }}</td>
-		<td><a href='/git/cgit/commit/?id={{ commit.hex }}'>{{ commit.message|truncatechars:"95" }}</a><a class='deco' href='/git/cgit/commit/?id={{ commit.hex }}'>HEAD</a><a class='branch-deco' href='/git/cgit/log/'>master</a></td>
+		<td><a href='{% url 'django-git-commit' project.name %}?id={{ commit.hex }}'>{{ commit.message|truncatechars:"95" }}</a></td>
 		<td>{{ commit.committer.name }}</td>
 		<td>1</td>
 		<td>-4/+1</td>
@@ -64,9 +77,11 @@
 	{% endfor %}
 	{% if commits_more %}
 	<tr class='nohover'>
-		<td colspan='3'><a href='/git/cgit/log/'>[...]</a></td>
+		<td colspan='3'><a href='{% url 'django-git-log' project.name %}'>[...]</a></td>
 	</tr>
 	{% endif %}
+
+	{# show clones #}
 	<tr class='nohover'>
 		<td colspan='4'>&nbsp;</td>
 	</tr>

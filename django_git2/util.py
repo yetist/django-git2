@@ -8,6 +8,7 @@ else:
     from django_git2 import settings
 
 import os
+import stat
 import operator
 import pygit2
 from pprint import pprint
@@ -75,6 +76,22 @@ def get_gitosis(path):
                     project = {}
     return projects
 
+def get_filemode(mode):
+    m = oct(mode)
+    perm = m[4:]
+    permstring = ["-"]
+    for i in perm:
+        p = int(i)
+        l = []
+        if p & 4: l.append("r")
+        else: l.append("-")
+        if p & 2: l.append("w")
+        else: l.append("-")
+        if p & 1: l.append("-")
+        else: l.append("-")
+        permstring.append("".join(l))
+    return "".join(permstring)
+
 def get_repo_byname(repo):
     projects = get_projects()
     for k,v in projects:
@@ -85,36 +102,37 @@ def get_repo_byname(repo):
     else:
         return None
 
-#def _find_parents(repo):
-#    p = len(repo.parents)
-#    if p == 1:
-#        yield p[0]
-#    else:
-#        for i in repo.parents:
-#            yield i
-#            _find_parents(i)
-#
-def _get_parents(repo):
-        walker = repo.walk(log[0], GIT_SORT_TIME)
-        out = [ x.hex for x in walker ]
-#    repo = repo.parents
-#    if len(repo) > 1:
-#        for i in repo:
-#            lst.append(i)
-#            print i.type
-#    else:
-#        print repo[0].type
-#        lst.append(repo)
-#        _get_parents(repo, lst)
+def get_tree_entries(tree, trees, path=""):
+    for entry in tree:
+        item = {}
+        obj = entry.to_object()
+        ext = os.path.splitext(entry.name)[1]
+        if stat.S_ISDIR(entry.filemode):
+            item['type'] = "dir"
+            item['filemode'] = "d---------"
+            item['size'] = len(obj.read_raw())
+        else:
+            item['type'] = "blob"
+            item['filemode'] = get_filemode(entry.filemode)
+            item['size'] = obj.size
+            if ext != '':
+                item['type'] = item['type'] + " " + ext[1:]
+        item['name'] = entry.name
+        item['path'] = os.path.join(path, entry.name)
+        item['hex'] = entry.hex
+        trees.append(item)
 
 class Git(object):
     def __init__(self, project):
         self.project = get_repo_byname(project)
-        self.repo = pygit2.Repository(self.project['path'])
+        if self.project is None:
+            self.repo = None
+        else:
+            self.repo = pygit2.Repository(self.project['path'])
 
     def _get_refs(self):
         d = {
-            'branch':[],
+            'branches':[],
             'tags':[],
             }
         refs = self.repo.listall_references()
@@ -122,12 +140,16 @@ class Git(object):
             if i.startswith('refs/heads/'):
                 e = self.repo.lookup_reference(i)
                 c = self.repo[e.oid]
-                d['branch'].append((i[11:], c))
+                d['branches'].append((i[11:], c))
             if i.startswith('refs/tags/'):
                 e = self.repo.lookup_reference(i)
                 c = self.repo[e.oid]
                 d['tags'].append((i[10:], c))
         return d
+
+    def has_error(self):
+        if self.repo is None:
+            return True
 
     def get_summary(self):
         walker = self.repo.walk(self.repo.head.hex, pygit2.GIT_SORT_TIME)
@@ -138,13 +160,22 @@ class Git(object):
             commits_more = True
 
         refs = self._get_refs()
+        branches_more = False
+        if len(refs['branches']) > 10:
+            refs['branches'] = refs['branches'][:10]
+            branches_more = False
+        tags_more = False
+        if len(refs['tags']) > 10:
+            refs['tags'] = refs['tags'][:10]
+            tags_more = False
         ctx = {
                 "refs": self._get_refs(),
+                "tags_more": tags_more,
+                "branches_more": branches_more,
                 "project": self.project,
                 "commits": commits,
-                "commits_more": commits_more
+                "commits_more": commits_more,
                 }
-        print dir(commits[0])
         return ctx
 
     def get_refs(self):
@@ -152,6 +183,43 @@ class Git(object):
                 "project": self.project,
                 "refs": self._get_refs()
                 }
+        return ctx
+
+    def get_log(self):
+        walker = self.repo.walk(self.repo.head.hex, pygit2.GIT_SORT_TIME)
+        commits = [ x for x in walker ]
+        commits_more = False
+        if len(commits) > 50:
+            commits = commits[:50]
+            commits_more = True
+
+        ctx = {
+                "project": self.project,
+                "commits": commits,
+                "commits_more": commits_more
+                }
+        return ctx
+
+    def get_tree(self, filepath):
+        trees = []
+        commit = self.repo[self.repo.head.hex]
+        tree = commit.tree
+        data = None
+        ctx = {"project": self.project,
+                "trees": trees}
+        if filepath == "":
+            get_tree_entries(tree, trees)
+        else:
+            ctx["filepath"] = filepath
+            entry = tree[filepath]
+            if stat.S_ISDIR(entry.filemode):
+                tree = entry.to_object()
+                get_tree_entries(tree, trees, filepath)
+            else:
+                obj = entry.to_object()
+                ctx['blob'] = obj
+                ctx['lines'] = [i+1 for i in range(len(obj.data.splitlines()))]
+        print ctx
         return ctx
 
     def get_tag(self, tid):
@@ -172,4 +240,5 @@ if __name__=="__main__":
     #get_repo_byname("ustore")
     a=Git("sunshine")
     #print a.get_refs()
-    print a.get_summary()
+    #print a.get_summary()
+    print a.get_tree('data/addon.desc')
