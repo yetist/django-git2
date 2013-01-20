@@ -1,0 +1,33 @@
+{% extends "django_git2/base.html" %}
+{% load future %}
+{% load timestamp %}
+
+{% block nav %}
+{% include "django_git2/header.html" %}
+{% endblock %}
+
+{% block content %}
+<table summary='repository info' class='list nowrap'><tr class='nohover'><th class='left'>Branch</th><th class='left'>Commit message</th><th class='left'>Author</th><th class='left' colspan='2'>Age</th></tr>
+    {% for k, v in refs.branch %}
+	<tr>
+		<td><a href='{% url 'django-git-log' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ k }}</a></td>
+		<td><a href='{% url 'django-git-commit' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ v.message }}</a></td>
+		<td>{{ v.committer.name }}</td>
+		<td colspan='2'>{% include "django_git2/time_duration.html" with date=v.commit_time %}</td>
+	</tr>
+        {%endfor%}
+
+    {% if refs.tags %}
+        <tr class='nohover'><td colspan='4'>&nbsp;</td></tr>
+        <tr class='nohover'><th class='left'>Tag</th><th class='left'>Download</th><th class='left'>Author</th><th class='left' colspan='2'>Age</th></tr>
+    {% for k, v in refs.tags %}
+	<tr>
+		<td><a href='{% url 'django-git-tag' project.name %}?id={{ k }}'>{{ k }}</a></td>
+		<td><a href='/git/cgit/snapshot/cgit-0.9.0.3.zip'>cgit-0.9.0.3.zip</a>&nbsp;&nbsp;<a href='/git/cgit/snapshot/cgit-0.9.0.3.tar.gz'>cgit-0.9.0.3.tar.gz</a>&nbsp;&nbsp;<a href='/git/cgit/snapshot/cgit-0.9.0.3.tar.bz2'>cgit-0.9.0.3.tar.bz2</a>&nbsp;&nbsp;</td>
+		<td>{{ v.tagger.name }}</td>
+		<td colspan='2'>{% include "django_git2/time_duration.html" with date=v.tagger.time %}</td>
+	</tr>
+    {%endfor%}
+    {%endif%}
+</table>
+{% endblock %}

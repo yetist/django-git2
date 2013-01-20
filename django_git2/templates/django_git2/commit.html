@@ -1,0 +1,54 @@
+{% extends "django_git2/base.html" %}
+{% load future %}
+
+{% block nav %}
+{% include "django_git2/header.html" %}
+{% endblock %}
+
+{% block content %}
+<table class="refs">
+    <tr class="header">
+        <td>Head</td>
+        <td>Commit message</td>
+        <td>Author</td>
+        <td>Age</td>
+        <td></td>
+    </tr>
+    {% for k, v in refs.branch.items %}
+    <tr>
+        <td><a href="{% url 'django-git-log' project %}?h={{k}}">{{ k }}</a></td>
+        <td><a href="{% url 'django-git-commit' project %}?h={{k}}">{{ v.message }}</a></td>
+        <td><i>{{ v.committer.name }}</i></td>
+        <td>{{ v.commit_time }}</td>
+        <td></td>
+    </tr>
+    {%endfor%}
+
+</table>
+<br/>
+<table class="refs">
+    <tr class="header">
+        <td>Tag</td>
+        <td>Message</td>
+        <td>Tagger</td>
+        <td>Age</td>
+        <td></td>
+    </tr>
+    {% for k, v in refs.tags.items %}
+    <tr>
+        <td><a href="{% url 'django-git-log' project %}?h={{k}}">{{ k }}</a></td>
+        <td><a href="{% url 'django-git-commit' project %}?h={{k}}">{{ v.message }}</a></td>
+        <td><i>{{ v.committer.name }}</i></td>
+        <td>{{ v.commit_time }}</td>
+        <td>
+            elf._fMenuLinks(t.name, t.id)
+        </td>
+    </tr>
+    {%endfor%}
+    <tr><td colspan="6">
+            elf.anchor('[ ... ]', v = { 'a' : 'refs' }, cls = 'ref_tag'
+    </td></tr>
+</table>
+<br />
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% load future %}
+<table id='header'>
+	<tr>
+		<td class='logo' rowspan='2'><a href='{% url 'django-git-list' %}'><img src='/static/images/cgit.png' alt='cgit logo'/></a></td>
+		<td class='main'><a href='{% url 'django-git-list' %}'>index</a> : <a title='cgit' href='{% url 'django-git-summary' project.name %}'>{{ project.name }}</a></td>
+		<td class='form'> <form method='get' action=''>
+			<select name='h' onchange='this.form.submit();'>
+				<option value='master' selected='selected'>master</option>
+				<option value='stable'>stable</option>
+				<option value='wiki'>wiki</option>
+				<option value='wip'>wip</option>
+			</select> <input type='submit' name='' value='switch'/></form>
+		</td>
+	</tr>
+	<tr><td class='sub'>{{project.desc}}</td>
+		<td class='sub right'>{{ project.owner }}</td>
+	</tr>
+</table>
+
+<table class='tabs'>
+	<tr>
+		<td>
+			<a{% ifequal current "summary" %} class='active'{% endifequal %} href='{% url 'django-git-summary' project.name %}'>summary</a>
+			<a{% ifequal current "refs" %} class='active'{% endifequal %} href='{% url 'django-git-refs' project.name %}'>refs</a>
+			<a{% ifequal current "log" %} class='active'{% endifequal %} href='{% url 'django-git-log' project.name %}'>log</a>
+			<a href='/git/cgit/tree/'>tree</a>
+			<a href='/git/cgit/commit/'>commit</a>
+			<a href='/git/cgit/diff/'>diff</a>
+			<a href='/git/cgit/stats/'>stats</a>
+			<a href='/git/cgit/about/'>about</a>
+		</td>
+		<td class='form'><form class='right' method='get' action='/git/cgit/log/'>
+				<select name='qt'>
+					<option value='grep'>log msg</option>
+					<option value='author'>author</option>
+					<option value='committer'>committer</option>
+					<option value='range'>range</option>
+				</select>
+				<input class='txt' type='text' size='10' name='q' value=''/>
+				<input type='submit' value='search'/>
+			</form>
+</td></tr></table>

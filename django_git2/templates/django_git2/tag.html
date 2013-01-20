@@ -1,0 +1,18 @@
+{% extends "django_git2/base.html" %}
+{% load future %}
+{% load timestamp %}
+
+{% block nav %}
+{% include "django_git2/header.html" %}
+{% endblock %}
+
+{% block content %}
+<table class='commit-info'>
+    <tr><td>tag name</td><td>{{ id }} ({{ tag.hex }})</td></tr>
+    <tr><td>tag date</td><td>{{ tag.tagger.time|timestamp:"%Y-%m-%d" }}</td></tr>
+    <tr><td>tagged by</td><td>{{ tag.tagger.name }} &lt;{{tag.tagger.email}}&gt;</td></tr>
+    <tr><td>tagged object</td><td class='sha1'><a href='{% url 'django-git-commit' project.name %}?id={{ commit.hex }}'>commit {{ commit.hex|truncatechars:"15" }}</a></td></tr>
+	<tr><th>download</th><td class='sha1'><a href='/git/cgit/snapshot/cgit-0.9.0.3.zip'>cgit-0.9.0.3.zip</a><br/><a href='/git/cgit/snapshot/cgit-0.9.0.3.tar.gz'>cgit-0.9.0.3.tar.gz</a><br/><a href='/git/cgit/snapshot/cgit-0.9.0.3.tar.bz2'>cgit-0.9.0.3.tar.bz2</a><br/></td></tr>
+</table>
+<div class='commit-subject'> {{ tag.message }}</div><div class='commit-msg'></div>
+{% endblock %}

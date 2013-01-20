@@ -1,0 +1,56 @@
+{% extends "django_git2/base.html" %}
+{% load future %}
+{% load timestamp %}
+
+{% block title %}
+All Projects
+{% endblock %}
+
+{% block nav %}
+<table id='header'>
+	<tr>
+		<td class='logo' rowspan='2'><a href='{% url 'django-git-list' %}'><img src='{{ STATIC_URL }}images/cgit.png' alt='cgit logo'/></a></td>
+		<td class='main'>Git repository browser</td>
+	</tr>
+	<tr>
+		<td class='sub'>a fast webinterface for the git dscm</td>
+	</tr>
+</table>
+<table class='tabs'>
+	<tr>
+		<td>
+			<a class='active' href='{% url 'django-git-list' %}'>index</a></td><td class='form'>
+			<form method='get' action='{% url 'django-git-list' %}'>
+				<input type='text' name='q' size='10' value='{% if query %}{{ query }}{% endif %}'/>
+				<input type='submit' value='search'/>
+			</form>
+		</td>
+	</tr>
+</table>
+{% endblock %}
+
+{% block content %}
+<table summary='repository list' class='list nowrap'>
+	<tr class='nohover'>
+		<th class='left'><a href='{% url 'django-git-list' %}?s=name{% if query %}&q={{ query }}{% endif %}'>Name</a></th>
+		<th class='left'><a href='{% url 'django-git-list' %}?s=desc{% if query %}&q={{ query }}{% endif %}'>Description</a></th>
+		<th class='left'><a href='{% url 'django-git-list' %}?s=owner{% if query %}&q={{ query }}{% endif %}'>Owner</a></th>
+		<th class='left'><a href='{% url 'django-git-list' %}?s=idle{% if query %}&q={{ query }}{% endif %}'>Idle</a></th>
+	</tr>
+	{% for k,v in projects %}
+	{% ifnotequal k "" %}
+	<tr class='nohover'>
+		<td colspan='4' class='reposection'>{{k}}</td>
+	</tr>
+	{% endifnotequal %}
+	{% for i in v %}
+	<tr>
+		<td class='sublevel-repo'><a title='{{ i.name }}' href='{% url 'django-git-summary' i.name %}'>{{ i.name }}</a></td>
+		<td><a href='{% url 'django-git-summary' i.name %}'>{{ i.desc }}</a></td>
+		<td>{{ i.owner}}</td>
+		<td>{% include "django_git2/time_duration.html" with date=i.idle %}</td>
+	</tr>
+	{%endfor%}
+	{%endfor%}
+</table>
+{% endblock %}

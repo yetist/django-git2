@@ -1,0 +1,9 @@
+{% load future %}
+{% load timestamp %}
+{% if   date|duration >= 525600 %}<span class='age-years'>
+{% elif date|duration >= 43200 %}<span class='age-months'>
+{% elif date|duration >= 10080 %}<span class='age-weeks'>
+{% elif date|duration >= 1440 %}<span class='age-days'>
+{% elif date|duration >= 60 %}<span class='age-hours'>
+{% elif date|duration >= 1 %}<span class='age-mins'>
+{% endif %}{{ date|timestamp2date|timesince }}</span>
