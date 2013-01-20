@@ -45,4 +45,3 @@ GIT_SUPPORT = {
         'parent': '/home/yetist/Dropbox/repos/',
         'gitosis': "/home/git/gitosis/repos.list"
         }
-cgit_path = '/path/to/dir/with/git/repositories'
