@@ -1,54 +1,77 @@
 {% extends "django_git2/base.html" %}
 {% load future %}
+{% load timestamp %}
 
 {% block nav %}
 {% include "django_git2/header.html" %}
 {% endblock %}
 
 {% block content %}
-<table class="refs">
-    <tr class="header">
-        <td>Head</td>
-        <td>Commit message</td>
-        <td>Author</td>
-        <td>Age</td>
-        <td></td>
-    </tr>
-    {% for k, v in refs.branch.items %}
-    <tr>
-        <td><a href="{% url 'django-git-log' project %}?h={{k}}">{{ k }}</a></td>
-        <td><a href="{% url 'django-git-commit' project %}?h={{k}}">{{ v.message }}</a></td>
-        <td><i>{{ v.committer.name }}</i></td>
-        <td>{{ v.commit_time }}</td>
-        <td></td>
-    </tr>
-    {%endfor%}
-
+<div class='cgit-panel'><b>diff options</b>
+	<form method='get' action='.'>
+		<table>
+			<tr><td colspan='2'/></tr>
+			<tr>
+				<td class='label'>context:</td>
+				<td class='ctrl'><select name='context' onchange='this.form.submit();'><option value='1'>1</option><option value='2'>2</option><option value='3' selected='selected'>3</option><option value='4'>4</option><option value='5'>5</option><option value='6'>6</option><option value='7'>7</option><option value='8'>8</option><option value='9'>9</option><option value='10'>10</option><option value='15'>15</option><option value='20'>20</option><option value='25'>25</option><option value='30'>30</option><option value='35'>35</option><option value='40'>40</option></select></td>
+			</tr>
+			<tr>
+				<td class='label'>space:</td>
+				<td class='ctrl'><select name='ignorews' onchange='this.form.submit();'><option value='0' selected='selected'>include</option><option value='1'>ignore</option></select></td>
+			</tr>
+			<tr>
+				<td class='label'>mode:</td>
+				<td class='ctrl'><select name='ss' onchange='this.form.submit();'><option value='0' selected='selected'>unified</option><option value='1'>ssdiff</option></select></td>
+			</tr>
+			<tr>
+				<td/>
+				<td class='ctrl'><noscript><input type='submit' value='reload'/></noscript></td>
+			</tr>
+		</table>
+	</form>
+</div>
+<table summary='commit info' class='commit-info'>
+	<tr><th>author</th><td>{{ commit.author.name}} &lt;{{ commit.author.email }}&gt;</td><td class='right'>{{ commit.author.time|timestamp:"%Y-%m-%d %H:%M:%S (%Z)" }}</td></tr>
+	<tr><th>committer</th><td>{{ commit.committer.name}} &lt;{{ commit.committer.email }}&gt;</td><td class='right'>{{ commit.committer.time|timestamp:"%Y-%m-%d %H:%M:%S (%Z)" }}</td></tr>
+	<tr><th>commit</th><td colspan='2' class='sha1'><a href='{% url 'django-git-commit' project.name %}?id={{ commit.hex }}'>{{ commit.hex }}</a> (<a href='/git/cgit/patch/?id={{ commit.hex }}'>patch</a>)</td></tr>
+	<tr><th>tree</th><td colspan='2' class='sha1'><a href='{% url 'django-git-tree' project.name %}'>{{ commit.tree.hex }}</a></td></tr>
+	{% if commit.parents %}
+	{% for parent in commit.parents %}
+	<tr><th>parent</th><td colspan='2' class='sha1'><a href='{% url 'django-git-commit' project.name %}?id={{ parent.hex }}'>{{ parent.hex }}</a> (<a href='/git/cgit/diff/?id2=ae90a0b2d18d66e7b1cb98b2e34fd697f8b5311a'>diff</a>)</td></tr>
+	{% endfor %}
+	{% endif %}
+	<tr><th>download</th><td colspan='2' class='sha1'><a href='/git/cgit/snapshot/cgit-master.zip'>cgit-master.zip</a><br/><a href='/git/cgit/snapshot/cgit-master.tar.gz'>cgit-master.tar.gz</a><br/><a href='/git/cgit/snapshot/cgit-master.tar.bz2'>cgit-master.tar.bz2</a><br/></td></tr>
 </table>
-<br/>
-<table class="refs">
-    <tr class="header">
-        <td>Tag</td>
-        <td>Message</td>
-        <td>Tagger</td>
-        <td>Age</td>
-        <td></td>
-    </tr>
-    {% for k, v in refs.tags.items %}
-    <tr>
-        <td><a href="{% url 'django-git-log' project %}?h={{k}}">{{ k }}</a></td>
-        <td><a href="{% url 'django-git-commit' project %}?h={{k}}">{{ v.message }}</a></td>
-        <td><i>{{ v.committer.name }}</i></td>
-        <td>{{ v.commit_time }}</td>
-        <td>
-            elf._fMenuLinks(t.name, t.id)
-        </td>
-    </tr>
-    {%endfor%}
-    <tr><td colspan="6">
-            elf.anchor('[ ... ]', v = { 'a' : 'refs' }, cls = 'ref_tag'
-    </td></tr>
-</table>
-<br />
 
+<div class='commit-subject'>css: only use div#cgit<a class='deco' href='/git/cgit/commit/?id=45555512ba63b823c6340875254563ea05737668'>HEAD</a><a class='branch-deco' href='/git/cgit/log/'>master</a></div><div class='commit-msg'>Don't bother with 'body' and 'div#cgit form', since
+	everything is wrapped in 'div#cgit' already.
+	Removing these two types makes embedding even easier.
+
+	Signed-off-by: Ferry Huberts &lt;ferry.huberts@pelagic.nl&gt;
+</div>
+<div class='diffstat-header'><a href='/git/cgit/diff/'>Diffstat</a></div>
+<table summary='diffstat' class='diffstat'>
+	<tr>
+		<td class='mode'>-rw-r--r--</td>
+		<td class='upd'><a href='/git/cgit/diff/cgit.css'>cgit.css</a></td>
+		<td class='right'>5</td>
+		<td class='graph'>
+			<table summary='file diffstat' width='5%'>
+				<tr>
+					<td class='add' style='width: 20.0%;'/>
+					<td class='rem' style='width: 80.0%;'/>
+					<td class='none' style='width: 0.0%;'/>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+
+<div class='diffstat-summary'>1 files changed, 1 insertions, 4 deletions</div>
+<table summary='diff' class='diff'>
+	<tr>
+		<td><div class='head'>diff --git a/cgit.css b/cgit.css<br/>index e06c261..651a320 100644<br/>--- a/<a href='/git/cgit/tree/cgit.css?id=ae90a0b2d18d66e7b1cb98b2e34fd697f8b5311a'>cgit.css</a><br/>+++ b/<a href='/git/cgit/tree/cgit.css?id=45555512ba63b823c6340875254563ea05737668'>cgit.css</a></div><div class='hunk'>@@ -1,9 +1,6 @@</div><div class='del'>-body, div#cgit table, div#cgit form {</div><div class='add'>+div#cgit {</div><div class='ctx'> 	padding: 0em;</div><div class='ctx'> 	margin: 0em;</div><div class='del'>-}</div><div class='del'>-</div><div class='del'>-body {</div><div class='ctx'> 	font-family: sans-serif;</div><div class='ctx'> 	font-size: 10pt;</div><div class='ctx'> 	color: #333;</div>
+		</td>
+	</tr>
+</table>
 {% endblock %}

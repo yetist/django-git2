@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('django_git2.views',
-    url(r'^(?P<repo>[\w_-]+)/log/$', 'log', name='django-git-log'),
+    url(r'^(?P<repo>[\w_-]+)/log/', 'log', name='django-git-log'),
     url(r'^(?P<repo>[\w_-]+)/refs/$', 'refs', name='django-git-refs'),
     url(r'^(?P<repo>[\w_-]+)/tag/$', 'tag', name='django-git-tag'),
     url(r'^(?P<repo>[\w_-]+)/tree/', 'tree', name='django-git-tree'),

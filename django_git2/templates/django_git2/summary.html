@@ -82,17 +82,18 @@
 	{% endif %}
 
 	{# show clones #}
+	{% if urls %}
 	<tr class='nohover'>
 		<td colspan='4'>&nbsp;</td>
 	</tr>
 	<tr>
 		<th class='left' colspan='4'>Clone</th>
 	</tr>
+	{% for url in urls %}
 	<tr>
-		<td colspan='4'><a href='git://hjemli.net/pub/git/cgit'>git://hjemli.net/pub/git/cgit</a></td>
+		<td colspan='4'><a href='{{ url }}/{{ project.url }}'>{{ url }}/{{ project.url }}</a></td>
 	</tr>
-	<tr>
-		<td colspan='4'><a href='http://hjemli.net/git/cgit'>http://hjemli.net/git/cgit</a></td>
-	</tr>
+	{% endfor %}
+	{% endif %}
 </table>
 {% endblock %}

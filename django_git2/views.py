@@ -24,7 +24,7 @@ def list(request):
         for k,v in projs:
             lst = []
             for i in v:
-                if i['name'].decode(settings.message_charset).lower().find(query) >= 0 or i['desc'].decode(settings.message_charset).lower().find(query) >= 0:
+                if i['name'].decode(settings.MESSAGE_CHARSET).lower().find(query) >= 0 or i['desc'].decode(settings.MESSAGE_CHARSET).lower().find(query) >= 0:
                     lst.append(i)
             if len(lst) > 0:
                 lst.sort(key=lambda x:x['name'])
@@ -68,6 +68,8 @@ def list(request):
             'projects':projects,
             'query':query
           }
+    ctx['title'] = settings.TITLE
+    ctx['description'] = settings.DESCRIPTION
     return render_to_response("django_git2/list.html", ctx, context_instance=RequestContext(request))
 
 def summary(request, repo):
@@ -76,6 +78,7 @@ def summary(request, repo):
         return redirect(reverse('django-git-list'))
     ctx = r.get_summary()
     ctx['current'] = 'summary'
+    ctx['urls'] = settings.URLS
     return render_to_response("django_git2/summary.html", ctx, context_instance=RequestContext(request))
 
 def refs(request, repo):
@@ -114,28 +117,19 @@ def plain(request, repo):
     if os.path.isdir(gitpath):
         gitrepo = pygit2.Repository(gitpath)
 
+def commit(request, repo):
+    r = util.Git(repo)
+    cid = request.GET.get('id', '')
+    if r.has_error():
+        return redirect(reverse('django-git-list'))
+    ctx = r.get_commit(cid)
+    ctx['current'] = 'commit'
+    return render_to_response("django_git2/commit.html", ctx, context_instance=RequestContext(request))
+
 def about(request, repo):
     gitpath = os.path.join(settings.parent_path, repo + ".git")
     if os.path.isdir(gitpath):
         gitrepo = pygit2.Repository(gitpath)
-
-def commit(request, repo):
-    gitpath = os.path.join(settings.parent_path, repo + ".git")
-    if os.path.isdir(gitpath):
-        gitrepo = pygit2.Repository(gitpath)
-        meta = {
-                'current':'log',
-                'project':repo,
-                }
-        ctx = {
-            'project': repo,
-            'meta': meta,
-            'repo': gitrepo,
-            'refs': getrefs(gitrepo),
-            'owner': 'owner',
-            'homepage': 'http://',
-            }
-        return render_to_response("django_git2/commit.html", ctx, context_instance=RequestContext(request))
 
 def tag(request, repo):
     r = util.Git(repo)

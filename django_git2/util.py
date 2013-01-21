@@ -2,12 +2,16 @@
 # -*- encoding:utf-8 -*-
 # FileName: util.py
 
+import os
+
 if __name__=="__main__":
+    import sys
+    sys.path.insert(0, '..')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
     import settings
 else:
     from django_git2 import settings
 
-import os
 import stat
 import operator
 import pygit2
@@ -15,16 +19,16 @@ from pprint import pprint
 
 def get_projects():
     projects = {}
-    if settings.GIT_SUPPORT.has_key('gitosis'):
-        projects = get_gitosis(settings.GIT_SUPPORT['gitosis'])
-    if settings.GIT_SUPPORT.has_key('parent'):
+    if settings.GIT_REPO_PATH.has_key('gitosis'):
+        projects = get_gitosis(settings.GIT_REPO_PATH['gitosis'])
+    if settings.GIT_REPO_PATH.has_key('parent'):
         if projects.has_key(''):
             lst = projects['']
         else:
             lst = []
             projects[''] = lst
-        for i in os.listdir(settings.GIT_SUPPORT['parent']):
-            path = os.path.join(settings.GIT_SUPPORT['parent'], i)
+        for i in os.listdir(settings.GIT_REPO_PATH['parent']):
+            path = os.path.join(settings.GIT_REPO_PATH['parent'], i)
             project = get_one_project(path)
             lst.append(project)
     sorted_projects = sorted(projects.iteritems(), key=operator.itemgetter(0))
@@ -38,7 +42,7 @@ def get_one_project(path):
         desc = os.path.join(path, "description")
         project['name'] = name
         project['url'] = basename
-        project['owner'] = settings.owner
+        project['owner'] = settings.DEFAULT_OWNER
         project['desc'] = open(desc).read()
         project['path'] = path
         repo = pygit2.Repository(path)
@@ -219,7 +223,19 @@ class Git(object):
                 obj = entry.to_object()
                 ctx['blob'] = obj
                 ctx['lines'] = [i+1 for i in range(len(obj.data.splitlines()))]
-        print ctx
+        return ctx
+
+    def get_commit(self, cid=''):
+        ctx = {"project": self.project}
+        if cid == '':
+            commit = self.repo[self.repo.head.hex]
+        else:
+            commit = self.repo[unicode(cid)]
+        print commit
+        ctx['commit'] = commit
+        print dir(commit)
+        print commit.tree, commit.tree.hex
+        #print commit.parents, commit.parents[0].hex
         return ctx
 
     def get_tag(self, tid):
@@ -241,4 +257,6 @@ if __name__=="__main__":
     a=Git("sunshine")
     #print a.get_refs()
     #print a.get_summary()
-    print a.get_tree('data/addon.desc')
+    #print a.get_tree('data/addon.desc')
+    cid = "91251a60a15581bbb0f5676dd81717f97272f69d"
+    a.get_commit(cid)
