@@ -13,8 +13,8 @@ Django-git2 requires the following:
 
 The following packages are optional:
 
-* [Pygments][pygments] (1.4+) - code highlight
-* [Pygit2][pygit2] (git version) - Python bindings for libgit2
+* Pygments (1.4+) - code highlight
+* Pygit2 (git version) - Python bindings for libgit2
 
 ## Installation
 
