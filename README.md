@@ -42,21 +42,10 @@ To install django-git2 in a virtualenv environment:
 	cd django-git2
 	virtualenv --no-site-packages --distribute env
 	source env/bin/activate
-	pip install -r requirements.txt # django, coverage
-
-To run the tests:
-
-	export PYTHONPATH=.    # Ensure djangorestframework is on the PYTHONPATH
-	python djangorestframework/runtests/runtests.py
-
-To run the test coverage report:
-
-	export PYTHONPATH=.    # Ensure djangorestframework is on the PYTHONPATH
-	python djangorestframework/runtests/runcoverage.py
+	pip install -r requirements.txt # django, pygit2
 
 To run the examples:
 
-	pip install -r examples/requirements.txt # pygments, httplib2, markdown
 	cd examples
 	export PYTHONPATH=..
 	python manage.py syncdb
