@@ -45,6 +45,7 @@ def get_one_project(path):
         project['owner'] = settings.DEFAULT_OWNER
         project['desc'] = open(desc).read()
         project['path'] = path
+        project['readme'] = "master:README"
         repo = pygit2.Repository(path)
         project['idle'] = repo.head.commit_time
     return project

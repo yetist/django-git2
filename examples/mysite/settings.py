@@ -161,7 +161,7 @@ DJANGO_GIT2_URLS = ['git://git.project.net', 'https://project.net/git']
 DJANGO_GIT2_GIT_REPO_PATH = {}
 
 # if you have some repos under the same parent directory, should use:
-# DJANGO_GIT2_GIT_REPO_PATH['parent'] = '/the/git/repos/parents/directory/'
+DJANGO_GIT2_GIT_REPO_PATH['parent'] = '/home/yetist/Dropbox/repos/'
 
 # if you want to support gitosis's repos.list, like this:
 # DJANGO_GIT2_GIT_REPO_PATH['gitosis']='/home/git/gitosis/repos.list'
