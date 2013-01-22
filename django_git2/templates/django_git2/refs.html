@@ -11,7 +11,7 @@
     {% for k, v in refs.branches %}
 	<tr>
 		<td><a href='{% url 'django-git-log' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ k }}</a></td>
-		<td><a href='{% url 'django-git-commit' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ v.message }}</a></td>
+		<td><a href='{% url 'django-git-commit' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ v.message|getline }}</a></td>
 		<td>{{ v.committer.name }}</td>
 		<td colspan='2'>{% include "django_git2/time_duration.html" with date=v.commit_time %}</td>
 	</tr>

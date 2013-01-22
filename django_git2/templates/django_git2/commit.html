@@ -43,12 +43,8 @@
 	<tr><th>download</th><td colspan='2' class='sha1'><a href='/git/cgit/snapshot/cgit-master.zip'>cgit-master.zip</a><br/><a href='/git/cgit/snapshot/cgit-master.tar.gz'>cgit-master.tar.gz</a><br/><a href='/git/cgit/snapshot/cgit-master.tar.bz2'>cgit-master.tar.bz2</a><br/></td></tr>
 </table>
 
-<div class='commit-subject'>css: only use div#cgit<a class='deco' href='/git/cgit/commit/?id=45555512ba63b823c6340875254563ea05737668'>HEAD</a><a class='branch-deco' href='/git/cgit/log/'>master</a></div><div class='commit-msg'>Don't bother with 'body' and 'div#cgit form', since
-	everything is wrapped in 'div#cgit' already.
-	Removing these two types makes embedding even easier.
-
-	Signed-off-by: Ferry Huberts &lt;ferry.huberts@pelagic.nl&gt;
-</div>
+<div class='commit-subject'>{{ commit.message|getline }}{% include "django_git2/commit_msgline_ref.html" %}</div>
+<div class='commit-msg'>{{commit.message|getline:"1:" }}</div>
 <div class='diffstat-header'><a href='/git/cgit/diff/'>Diffstat</a></div>
 <table summary='diffstat' class='diffstat'>
 	<tr>
@@ -70,8 +66,7 @@
 <div class='diffstat-summary'>1 files changed, 1 insertions, 4 deletions</div>
 <table summary='diff' class='diff'>
 	<tr>
-		<td><div class='head'>diff --git a/cgit.css b/cgit.css<br/>index e06c261..651a320 100644<br/>--- a/<a href='/git/cgit/tree/cgit.css?id=ae90a0b2d18d66e7b1cb98b2e34fd697f8b5311a'>cgit.css</a><br/>+++ b/<a href='/git/cgit/tree/cgit.css?id=45555512ba63b823c6340875254563ea05737668'>cgit.css</a></div><div class='hunk'>@@ -1,9 +1,6 @@</div><div class='del'>-body, div#cgit table, div#cgit form {</div><div class='add'>+div#cgit {</div><div class='ctx'> 	padding: 0em;</div><div class='ctx'> 	margin: 0em;</div><div class='del'>-}</div><div class='del'>-</div><div class='del'>-body {</div><div class='ctx'> 	font-family: sans-serif;</div><div class='ctx'> 	font-size: 10pt;</div><div class='ctx'> 	color: #333;</div>
-		</td>
+		<td>{{ color_patch|safe }}</td>
 	</tr>
 </table>
 {% endblock %}

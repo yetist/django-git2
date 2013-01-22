@@ -1,0 +1,13 @@
+{% load future %}
+{% load timestamp %}
+{% for commit in commits %}
+<tr>
+    <td>{{ commit.commit_time|timestamp:"%Y-%m-%d" }}</td>
+	<td><a href='{% url 'django-git-commit' project.name %}?id={{ commit.hex }}'>{{ commit.message|getline }}</a>
+		{% include "django_git2/commit_msgline_ref.html" %}
+    </td>
+    <td>{{ commit.committer.name }}</td>
+    <td>1</td>
+    <td>-4/+1</td>
+</tr>
+{% endfor %}

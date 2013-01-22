@@ -1,0 +1,6 @@
+{% load future %}
+{% load timestamp %}
+{% ifequal commit.hex refs.head %}<a class='deco' href='{% url 'django-git-commit' project.name %}?id={{ commit.hex }}'>HEAD</a>{% endifequal %}
+{% ifref commit in refs %}
+<a class='{{ ref.type }}-deco' href='{% ifequal ref.type 'branch' %}{% url 'django-git-log' project.name %}{% else %}{% url 'django-git-tag' project.name %}?id={{ ref.name }}{% endifequal %}'>{{ ref.name }}</a>
+{% endifref %}

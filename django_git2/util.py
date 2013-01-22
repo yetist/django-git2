@@ -4,9 +4,16 @@
 
 import os
 
+import pygments
+from pygments import highlight
+from pygments import lexers
+from pygments.formatters import HtmlFormatter
+
+
+
 if __name__=="__main__":
     import sys
-    sys.path.insert(0, '..')
+    sys.path.insert(0, '../examples')
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
     import settings
 else:
@@ -134,11 +141,13 @@ class Git(object):
             self.repo = None
         else:
             self.repo = pygit2.Repository(self.project['path'])
+            self.refs = self._get_refs()
 
     def _get_refs(self):
         d = {
             'branches':[],
             'tags':[],
+            'head':self.repo.head.hex,
             }
         refs = self.repo.listall_references()
         for i in refs:
@@ -157,6 +166,7 @@ class Git(object):
             return True
 
     def get_summary(self):
+        refs = self._get_refs()
         walker = self.repo.walk(self.repo.head.hex, pygit2.GIT_SORT_TIME)
         commits = [ x for x in walker ]
         commits_more = False
@@ -164,7 +174,6 @@ class Git(object):
             commits = commits[:10]
             commits_more = True
 
-        refs = self._get_refs()
         branches_more = False
         if len(refs['branches']) > 10:
             refs['branches'] = refs['branches'][:10]
@@ -191,6 +200,7 @@ class Git(object):
         return ctx
 
     def get_log(self):
+        refs = self._get_refs()
         walker = self.repo.walk(self.repo.head.hex, pygit2.GIT_SORT_TIME)
         commits = [ x for x in walker ]
         commits_more = False
@@ -199,6 +209,7 @@ class Git(object):
             commits_more = True
 
         ctx = {
+                "refs": refs,
                 "project": self.project,
                 "commits": commits,
                 "commits_more": commits_more
@@ -227,16 +238,26 @@ class Git(object):
         return ctx
 
     def get_commit(self, cid=''):
+        refs = self._get_refs()
         ctx = {"project": self.project}
         if cid == '':
             commit = self.repo[self.repo.head.hex]
         else:
             commit = self.repo[unicode(cid)]
-        print commit
         ctx['commit'] = commit
-        print dir(commit)
-        print commit.tree, commit.tree.hex
-        #print commit.parents, commit.parents[0].hex
+        ctx['refs'] = refs
+
+        if len(commit.parents) > 0:
+            commit_b = self.repo[commit.parents[0].hex]
+            diff = commit_b.tree.diff(commit.tree)
+            ctx['patch'] = diff.patch.decode('utf-8')
+            lexer = lexers.guess_lexer(diff.patch)
+            formatter = HtmlFormatter(noclasses=True, nobackground=True)
+            ctx['color_patch'] = highlight(ctx['patch'], lexer, formatter)
+            ctx['extra_css'] = HtmlFormatter().get_style_defs('.highlight')
+        else:
+            tb = self.repo.TreeBuilder()
+            diff = self.repo[tb.write()].diff(commit.tree)
         return ctx
 
     def get_tag(self, tid):
@@ -260,4 +281,5 @@ if __name__=="__main__":
     #print a.get_summary()
     #print a.get_tree('data/addon.desc')
     cid = "91251a60a15581bbb0f5676dd81717f97272f69d"
-    a.get_commit(cid)
+    first_cid = "93252c36d23a19ee5744df96532c60d3b0c20c3c"
+    a.get_commit(first_cid)

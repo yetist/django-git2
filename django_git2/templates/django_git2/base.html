@@ -2,8 +2,8 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    {% block css %}
     <link rel="stylesheet" href="/static/css/cgit.css" type="text/css" />
+    {% block extra_head %}
     {% endblock %}
 	<title>{% block title %} {{ project.name }} - {{ project.desc }}{% endblock %}</title>
 </head>

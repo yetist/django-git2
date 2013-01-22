@@ -18,7 +18,8 @@
 	{% for k, v in refs.branches %}
 	<tr>
 		<td><a href='{% url 'django-git-log' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ k }}</a></td>
-		<td><a href='{% url 'django-git-commit' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ v.message }}</a></td>
+		<td><a href='{% url 'django-git-commit' project.name %}{% ifnotequal k "master" %}?h={{k}}{% endifnotequal %}'>{{ v.message|getline }}</a>
+			</td>
 		<td>{{ v.committer.name }}</td>
 		<td colspan='2'>{% include "django_git2/time_duration.html" with date=v.commit_time %}</td>
 	</tr>
@@ -66,15 +67,7 @@
 		<th class='left'>Files</th>
 		<th class='left'>Lines</th>
 	</tr>
-	{% for commit in commits %}
-	<tr>
-		<td>{{ commit.commit_time|timestamp:"%Y-%m-%d" }}</td>
-		<td><a href='{% url 'django-git-commit' project.name %}?id={{ commit.hex }}'>{{ commit.message|truncatechars:"95" }}</a></td>
-		<td>{{ commit.committer.name }}</td>
-		<td>1</td>
-		<td>-4/+1</td>
-	</tr>
-	{% endfor %}
+	{% include "django_git2/commit_msgline.html" %}
 	{% if commits_more %}
 	<tr class='nohover'>
 		<td colspan='3'><a href='{% url 'django-git-log' project.name %}'>[...]</a></td>
