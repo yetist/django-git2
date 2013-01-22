@@ -270,7 +270,7 @@ class Git(object):
                 'tag': tag,
                 "current": "summary",
                 'commit': commit,
-                }
+              }
         return ctx
 
 if __name__=="__main__":
