@@ -67,14 +67,14 @@ def highlight(value, arg=None):
     if value in (None, u''):
         return u''
     try:
-        value = value.decode('utf-8')
-    except UnicodeDecodeError:
-        pass
+        msg = value.decode('utf-8')
+    except:
+        msg = value
     if arg is None:
         arg = settings.TIME_FORMAT
-    lexer = pygments.lexers.guess_lexer(value)
+    lexer = pygments.lexers.guess_lexer(msg)
     formatter = pygments.formatters.HtmlFormatter(noclasses=True, nobackground=True)
-    return pygments.highlight(value, lexer, formatter)
+    return pygments.highlight(msg, lexer, formatter)
 
 class RefsNode(Node):
     def __init__(self, commit, refs, nodelist_true, nodelist_false):
