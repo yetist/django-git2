@@ -23,6 +23,8 @@ COMMITS_PER_PAGE = getattr(settings, 'DJANGO_GIT2_COMMITS_PER_PAGE', 50)
 #
 #DJANGO_GIT2_COMMITS_IN_SUMMARY = 15
 COMMITS_IN_SUMMARY = getattr(settings, 'DJANGO_GIT2_COMMITS_IN_SUMMARY', 10)
+BRANCHES_IN_SUMMARY = getattr(settings, 'DJANGO_GIT2_BRANCHES_IN_SUMMARY', 10)
+TAGS_IN_SUMMARY = getattr(settings, 'DJANGO_GIT2_TAGS_IN_SUMMARY', 10)
 
 ### Maximal length of one line comment (shown for example in log)
 # Default value is 50

@@ -165,3 +165,8 @@ DJANGO_GIT2_GIT_REPO_PATH['parent'] = '/home/yetist/Dropbox/repos/'
 
 # if you want to support gitosis's repos.list, like this:
 # DJANGO_GIT2_GIT_REPO_PATH['gitosis']='/home/git/gitosis/repos.list'
+
+try:
+    from localsettings import *
+except:
+    pass

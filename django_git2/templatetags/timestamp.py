@@ -56,6 +56,26 @@ def getline(value, arg=None):
         msg = "\n".join(msg)
     return msg
 
+@register.filter(expects_localtime=True, is_safe=True)
+def highlight(value, arg=None):
+    """Formats a timestamp according to the given format."""
+
+    import pygments
+    import pygments.lexers
+    import pygments.formatters
+
+    if value in (None, u''):
+        return u''
+    try:
+        value = value.decode('utf-8')
+    except UnicodeDecodeError:
+        pass
+    if arg is None:
+        arg = settings.TIME_FORMAT
+    lexer = pygments.lexers.guess_lexer(value)
+    formatter = pygments.formatters.HtmlFormatter(noclasses=True, nobackground=True)
+    return pygments.highlight(value, lexer, formatter)
+
 class RefsNode(Node):
     def __init__(self, commit, refs, nodelist_true, nodelist_false):
         self.commit = commit
@@ -75,6 +95,7 @@ class RefsNode(Node):
         except VariableDoesNotExist:
             refs = []
 
+        #print commit.hex
         ref = context['ref'] = {
                 'type':u'',
                 'name':u'',
@@ -83,8 +104,9 @@ class RefsNode(Node):
             if commit.hex == v.hex:
                 ref['type'] = u"branch"
                 ref['name'] = k
-        for k, v in refs['tags']:
-            if commit.hex == v.hex:
+        for k, v, c in refs['tags']:
+            #print k,v, commit.oid, v.hex, v.target
+            if commit.hex == c.hex:
                 ref['type'] = u"tag"
                 ref['name'] = k
         if ref['type'] != u'':

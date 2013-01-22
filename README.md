@@ -67,6 +67,7 @@ Add the following line to your setting file.
 
 To see the example:
 
-	cd examples
-	python manage.py syncdb
-	python manage.py runserver
+    cd examples
+    export PYTHONPATH=..
+    python manage.py syncdb
+    python manage.py runserver

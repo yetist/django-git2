@@ -18,7 +18,7 @@
 {% endfor %}</pre>
 		</td>
 		<td class='lines'>
-<pre><code>{{ blob.data }}</code></pre>
+<pre><code>{{ blob.data|highlight|safe }}</code></pre>
 		</td>
 	</tr>
 </table>

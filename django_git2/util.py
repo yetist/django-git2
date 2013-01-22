@@ -4,13 +4,6 @@
 
 import os
 
-import pygments
-from pygments import highlight
-from pygments import lexers
-from pygments.formatters import HtmlFormatter
-
-
-
 if __name__=="__main__":
     import sys
     sys.path.insert(0, '../examples')
@@ -144,52 +137,55 @@ class Git(object):
             self.refs = self._get_refs()
 
     def _get_refs(self):
-        d = {
+        refs = {
             'branches':[],
             'tags':[],
             'head':self.repo.head.hex,
             }
-        refs = self.repo.listall_references()
-        for i in refs:
+        all_refs = self.repo.listall_references()
+        for i in all_refs:
             if i.startswith('refs/heads/'):
-                e = self.repo.lookup_reference(i)
-                c = self.repo[e.oid]
-                d['branches'].append((i[11:], c))
+                ref = self.repo.lookup_reference(i)
+                commit = self.repo[ref.oid]
+                refs['branches'].append((i[11:], commit))
             if i.startswith('refs/tags/'):
-                e = self.repo.lookup_reference(i)
-                c = self.repo[e.oid]
-                d['tags'].append((i[10:], c))
-        return d
+                ref = self.repo.lookup_reference(i)
+                tag = self.repo[ref.oid]
+                commit = self.repo[tag.target]
+                refs['tags'].append((i[10:], tag, commit))
+        return refs
 
     def has_error(self):
         if self.repo is None:
             return True
 
     def get_summary(self):
+        branches_more = False
         refs = self._get_refs()
+        if len(refs['branches']) > settings.BRANCHES_IN_SUMMARY:
+            refs['branches'] = self.refs['branches'][:settings.BRANCHES_IN_SUMMARY]
+            branches_more = True
+
+        tags_more = False
+        if len(refs['tags']) > settings.TAGS_IN_SUMMARY:
+            refs['tags'] = self.refs['tags'][:settings.TAGS_IN_SUMMARY]
+            tags_more = True
+
         walker = self.repo.walk(self.repo.head.hex, pygit2.GIT_SORT_TIME)
         commits = [ x for x in walker ]
         commits_more = False
-        if len(commits) > 10:
-            commits = commits[:10]
+        if len(commits) > settings.COMMITS_IN_SUMMARY:
+            commits = commits[:settings.COMMITS_IN_SUMMARY]
             commits_more = True
 
-        branches_more = False
-        if len(refs['branches']) > 10:
-            refs['branches'] = refs['branches'][:10]
-            branches_more = False
-        tags_more = False
-        if len(refs['tags']) > 10:
-            refs['tags'] = refs['tags'][:10]
-            tags_more = False
         ctx = {
-                "refs": self._get_refs(),
+                "project": self.project,
+                "refs": refs,
                 "tags_more": tags_more,
                 "branches_more": branches_more,
-                "project": self.project,
                 "commits": commits,
                 "commits_more": commits_more,
-                }
+              }
         return ctx
 
     def get_refs(self):
@@ -250,11 +246,10 @@ class Git(object):
         if len(commit.parents) > 0:
             commit_b = self.repo[commit.parents[0].hex]
             diff = commit_b.tree.diff(commit.tree)
-            ctx['patch'] = diff.patch.decode('utf-8')
-            lexer = lexers.guess_lexer(diff.patch)
-            formatter = HtmlFormatter(noclasses=True, nobackground=True)
-            ctx['color_patch'] = highlight(ctx['patch'], lexer, formatter)
-            ctx['extra_css'] = HtmlFormatter().get_style_defs('.highlight')
+            try:
+                ctx['patch'] = diff.patch.decode('utf-8')
+            except UnicodeDecodeError:
+                ctx['patch'] = diff.patch
         else:
             tb = self.repo.TreeBuilder()
             diff = self.repo[tb.write()].diff(commit.tree)
